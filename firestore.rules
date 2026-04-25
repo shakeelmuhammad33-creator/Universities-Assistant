@@ -1,0 +1,67 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    // Bootstrapped Admin: Only allow write from specific admins
+    function isAdmin() {
+      return isVerified() && request.auth.token.email == 'shakeelmuhammad33@gmail.com';
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // --- University Validation ---
+    function isValidUniversity(data) {
+      return data.keys().hasAll(['id', 'name', 'nameUrdu', 'location', 'locationUrdu']) &&
+             data.keys().size() <= 6 &&
+             data.name is string && data.name.size() <= 200 &&
+             data.nameUrdu is string && data.nameUrdu.size() <= 200 &&
+             data.location is string && data.location.size() <= 100 &&
+             data.locationUrdu is string && data.locationUrdu.size() <= 100;
+    }
+
+    // --- Program Validation ---
+    function isValidProgram(data) {
+      return data.keys().hasAll(['id', 'universityId', 'name', 'level', 'feePerSemester', 'minPercentage', 'classMode', 'classSchedule']) &&
+             data.keys().size() <= 10 &&
+             data.name is string && data.name.size() <= 200 &&
+             data.level in ['BS', 'MPhil', 'MS', 'PhD'] &&
+             data.feePerSemester is number && data.feePerSemester >= 0 &&
+             data.minPercentage is number && data.minPercentage >= 0 && data.minPercentage <= 100 &&
+             data.classMode in ['Regular', 'Online'] &&
+             data.classSchedule in ['Weekdays', 'Weekend'];
+    }
+
+    // --- Collections ---
+
+    match /universities/{universityId} {
+      allow read: if true; // Public list
+      allow create: if isAdmin() && isValidUniversity(request.resource.data) && universityId == request.resource.data.id;
+      allow update: if isAdmin() && isValidUniversity(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /programs/{programId} {
+      allow read: if true; // Public list
+      allow create: if isAdmin() && isValidProgram(request.resource.data) && 
+                      programId == request.resource.data.id &&
+                      exists(/databases/$(database)/documents/universities/$(request.resource.data.universityId));
+      allow update: if isAdmin() && isValidProgram(request.resource.data);
+      allow delete: if isAdmin();
+    }
+  }
+}

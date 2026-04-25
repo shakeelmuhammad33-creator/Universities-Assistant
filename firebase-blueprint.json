@@ -1,0 +1,46 @@
+{
+  "entities": {
+    "University": {
+      "title": "University",
+      "description": "Information about a university in Pakistan.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "nameUrdu": { "type": "string" },
+        "location": { "type": "string" },
+        "locationUrdu": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["id", "name", "nameUrdu", "location"]
+    },
+    "Program": {
+      "title": "Program",
+      "description": "Academic program offered by a university.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "universityId": { "type": "string" },
+        "name": { "type": "string" },
+        "level": { "type": "string", "enum": ["BS", "MPhil", "MS", "PhD"] },
+        "feePerSemester": { "type": "number" },
+        "eligibilityCriteria": { "type": "string" },
+        "minPercentage": { "type": "number" },
+        "classMode": { "type": "string", "enum": ["Regular", "Online"] },
+        "classSchedule": { "type": "string", "enum": ["Weekdays", "Weekend", "DistanceLearning"] },
+        "description": { "type": "string" }
+      },
+      "required": ["id", "universityId", "name", "level", "feePerSemester", "eligibilityCriteria", "minPercentage", "classMode", "classSchedule"]
+    }
+  },
+  "firestore": {
+    "/universities/{universityId}": {
+      "schema": "University",
+      "description": "Collection of universities."
+    },
+    "/programs/{programId}": {
+      "schema": "Program",
+      "description": "Collection of programs linked to universities."
+    }
+  }
+}

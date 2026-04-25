@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Jameel Noori Nastaleeq';
+  src: url('https://cdn.jsdelivr.net/gh/nafeesl/Urdu-Web-Fonts/fonts/Jameel-Noori-Nastaleeq.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-urdu: "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", serif;
+}
+
+@layer base {
+  [dir="rtl"] {
+    font-family: 'Jameel Noori Nastaleeq', "Noto Nastaliq Urdu", serif;
+    line-height: 2.2; /* Nastaleeq needs more breathing room */
+  }
+  
+  [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6, [dir="rtl"] p, [dir="rtl"] span, [dir="rtl"] button, [dir="rtl"] input, [dir="rtl"] select, [dir="rtl"] textarea {
+    font-family: 'Jameel Noori Nastaleeq', "Noto Nastaliq Urdu", serif;
+  }
+}
